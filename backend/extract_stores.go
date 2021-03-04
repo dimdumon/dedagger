@@ -82,14 +82,14 @@ func extractMethods(value reflect.Value, typeof reflect.Type) ([]*model.Method, 
 
 func extractParameters(method reflect.Method) ([]*model.Parameter, error) {
 	numIn := method.Type.NumIn()
-	parameters := make([]*model.Parameter, numIn-1) // `- 1` to skip the receiver
+	parameters := []*model.Parameter{}
 
-	for i := 1; i < numIn; i++ {
+	for i := 1; i < numIn; i++ { // Start from 1 to skip the receiver
 		parameter := &model.Parameter{
 			Type: method.Type.In(i),
 		}
 
-		parameters[i-1] = parameter
+		parameters = append(parameters, parameter)
 	}
 	return parameters, nil
 }

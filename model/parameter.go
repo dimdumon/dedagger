@@ -7,5 +7,5 @@ type Parameter struct {
 }
 
 func (p Parameter) String() string {
-	return p.Type.Name()
+	return p.Type.String()
 }
