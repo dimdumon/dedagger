@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>DeDAGger - {{.Store.Name}}</title>
+</head>
+<body>
+<section class="todoapp">
+    <header class="header">
+        <h1>DeDAGger - {{.Store.Name}}</h1>
+    </header>
+    <section class="main">
+        <ul class="todo-list">
+            {{range $k,$v:=.Store.Methods}}
+            <li>
+                <div class="view">
+                    <a href="methods/{{$v.Name}}">{{$v}}</a>
+                </div>
+            </li>
+            {{end}}
+        </ul>
+    </section>
+</section>
+</body>
+</html>

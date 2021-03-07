@@ -1,0 +1,9 @@
+{
+	"app_name": "DeDAGger",
+	"base_url": "http://localhost:8090",
+	"port": 8090,
+	"verbose": true,
+	"static_dir": "frontend/static",
+	"view_dir": "frontend/views",
+	"no_model": true
+}

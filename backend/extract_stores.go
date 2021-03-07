@@ -98,6 +98,7 @@ var filteredMethodRegexes = []string{
 	"Discard",
 	".*Stage.*",
 	".*Updat.*",
+	".*Import.*",
 }
 
 func isFilteredMethod(methodName string) bool {
