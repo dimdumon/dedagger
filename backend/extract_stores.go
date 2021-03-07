@@ -30,17 +30,17 @@ func storeInterfaces(tc testapi.TestConsensus) []interface{} {
 	}
 }
 
-func extractStores(tc testapi.TestConsensus) ([]*model.Store, error) {
+func extractStores(tc testapi.TestConsensus) (map[string]*model.Store, error) {
 	storeInterfaces := storeInterfaces(tc)
 
-	stores := make([]*model.Store, len(storeInterfaces))
-	for i, storeInterface := range storeInterfaces {
+	stores := make(map[string]*model.Store, len(storeInterfaces))
+	for _, storeInterface := range storeInterfaces {
 		store, err := newStore(storeInterface)
 		if err != nil {
 			return nil, err
 		}
 
-		stores[i] = store
+		stores[store.Name] = store
 	}
 	return stores, nil
 }
@@ -63,9 +63,9 @@ func newStore(storeInterface interface{}) (*model.Store, error) {
 	}, nil
 }
 
-func extractMethods(value reflect.Value, typeof reflect.Type) ([]*model.Method, error) {
+func extractMethods(storeValue reflect.Value, typeof reflect.Type) (map[string]*model.Method, error) {
 	numMethods := typeof.NumMethod()
-	methods := []*model.Method{}
+	methods := map[string]*model.Method{}
 
 	for i := 0; i < numMethods; i++ {
 		reflectMethod := typeof.Method(i)
@@ -73,19 +73,20 @@ func extractMethods(value reflect.Value, typeof reflect.Type) ([]*model.Method, 
 			continue
 		}
 
-		methodValue := value.MethodByName(reflectMethod.Name)
+		methodValue := storeValue.MethodByName(reflectMethod.Name)
 
 		parameters, err := extractParameters(reflectMethod)
 		if err != nil {
 			return nil, err
 		}
 
-		method := &model.Method{
-			Name:       reflectMethod.Name,
+		name := reflectMethod.Name
+		methods[name] = &model.Method{
+			Name:       name,
 			Value:      methodValue,
 			Parameters: parameters,
+			StoreValue: storeValue,
 		}
-		methods = append(methods, method)
 	}
 
 	return methods, nil

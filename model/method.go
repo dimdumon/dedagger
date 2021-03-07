@@ -8,8 +8,9 @@ import (
 
 type Method struct {
 	Name       string
-	Value      reflect.Value
 	Parameters []*Parameter
+	Value      reflect.Value
+	StoreValue reflect.Value
 }
 
 func (m Method) String() string {

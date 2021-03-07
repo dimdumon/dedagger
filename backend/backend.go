@@ -9,7 +9,7 @@ import (
 
 type Backend struct {
 	consensus testapi.TestConsensus
-	Stores    []*model.Store
+	Stores    map[string]*model.Store
 }
 
 func NewBackend(dataDir string, dagParams *dagconfig.Params) (backend *Backend, teardown func(), err error) {
