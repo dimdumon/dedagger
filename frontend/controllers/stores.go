@@ -144,11 +144,16 @@ func (s *Stores) error(err error, code int) {
 }
 
 func (s *Stores) renderOutput(output interface{}) (string, error) {
-	bytes, err := json.MarshalIndent(output, "", "\t")
-	if err != nil {
-		return "", err
+	switch outputObj := output.(type) {
+	case *externalapi.DomainHash:
+		return outputObj.String(), nil
+	default:
+		bytes, err := json.MarshalIndent(output, "", "\t")
+		if err != nil {
+			return "", err
+		}
+		return string(bytes), nil
 	}
-	return string(bytes), nil
 }
 
 func NewStores(be *backend.Backend) func() controller.Controller {
