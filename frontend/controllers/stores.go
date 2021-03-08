@@ -1,13 +1,12 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
 	"strings"
 
-	"github.com/kaspanet/kaspad/domain/consensus/model/externalapi"
+	"github.com/svarogg/dedagger/converters"
 
 	"github.com/svarogg/dedagger/model"
 
@@ -90,9 +89,9 @@ func (s *Stores) MethodCall() {
 	parameterStrings := make([]string, len(method.Parameters))
 	for i, parameter := range method.Parameters {
 		parameterString := request.FormValue(fmt.Sprintf("parameter%d", i))
-		value, err := parseParameter(parameter, parameterString)
+		value, err := converters.ParseParameter(parameter, parameterString)
 		if err != nil {
-			s.error(fmt.Errorf("error from parseParameter: %+v", err), http.StatusBadRequest)
+			s.error(fmt.Errorf("error from ParseParameter: %+v", err), http.StatusBadRequest)
 			return
 		}
 		parameterValues[i] = value
@@ -102,9 +101,9 @@ func (s *Stores) MethodCall() {
 	outputValues := s.backend.Call(method, parameterValues)
 	outputs := make([]interface{}, len(outputValues))
 	for i, outputValue := range outputValues {
-		output, err := s.renderOutput(outputValue.Interface())
+		output, err := converters.RenderOutput(outputValue.Interface())
 		if err != nil {
-			s.error(fmt.Errorf("error from renderOutput: %+v", err), http.StatusBadRequest)
+			s.error(fmt.Errorf("error from RenderOutput: %+v", err), http.StatusBadRequest)
 			return
 		}
 
@@ -119,41 +118,10 @@ func (s *Stores) MethodCall() {
 	s.HTML(http.StatusOK)
 }
 
-func parseParameter(parameter *model.Parameter, valueString string) (reflect.Value, error) {
-	switch parameter.Type.String() {
-	case "*externalapi.DomainHash":
-		hash, err := externalapi.NewDomainHashFromString(valueString)
-		if err != nil {
-			return reflect.Value{}, err
-		}
-		return reflect.ValueOf(hash), nil
-	default:
-		valueInterface := reflect.New(parameter.Type).Interface()
-		err := json.Unmarshal([]byte(valueString), valueInterface)
-		if err != nil {
-			return reflect.Value{}, err
-		}
-		return reflect.ValueOf(valueInterface), nil
-	}
-}
-
 func (s *Stores) error(err error, code int) {
 	s.Ctx.Data["Error"] = fmt.Sprintf("%+v", err)
 	s.Ctx.Template = "error"
 	s.HTML(code)
-}
-
-func (s *Stores) renderOutput(output interface{}) (string, error) {
-	switch outputObj := output.(type) {
-	case *externalapi.DomainHash:
-		return outputObj.String(), nil
-	default:
-		bytes, err := json.MarshalIndent(output, "", "\t")
-		if err != nil {
-			return "", err
-		}
-		return string(bytes), nil
-	}
 }
 
 func NewStores(be *backend.Backend) func() controller.Controller {
