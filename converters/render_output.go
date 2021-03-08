@@ -2,6 +2,8 @@ package converters
 
 import (
 	"encoding/json"
+	"fmt"
+	"reflect"
 
 	"github.com/kaspanet/kaspad/domain/consensus/utils/hashes"
 
@@ -17,6 +19,11 @@ func jsonMarshal(output interface{}) (string, error) {
 }
 
 func RenderOutput(output interface{}) (string, error) {
+	// check for nil or interface nil:
+	// https://stackoverflow.com/a/50487104/474270
+	if output == nil || (reflect.ValueOf(output).Kind() == reflect.Ptr && reflect.ValueOf(output).IsNil()) {
+		return "nil", nil
+	}
 	switch outputObj := output.(type) {
 	case *externalapi.DomainHash:
 		return outputObj.String(), nil
@@ -24,6 +31,8 @@ func RenderOutput(output interface{}) (string, error) {
 		return renderBlockHeader(outputObj)
 	case *externalapi.DomainBlock:
 		return renderBlock(outputObj)
+	case error:
+		return fmt.Sprintf("%+v", outputObj), nil
 	default:
 		return jsonMarshal(output)
 	}
