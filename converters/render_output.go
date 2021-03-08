@@ -3,7 +3,10 @@ package converters
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"reflect"
+
+	"github.com/kaspanet/kaspad/domain/consensus/model"
 
 	"github.com/kaspanet/kaspad/domain/consensus/utils/hashes"
 
@@ -31,10 +34,33 @@ func RenderOutput(output interface{}) (string, error) {
 		return renderBlockHeader(outputObj)
 	case *externalapi.DomainBlock:
 		return renderBlock(outputObj)
+	case *model.BlockGHOSTDAGData:
+		return renderBlockGHOSTDAGData(outputObj)
 	case error:
 		return fmt.Sprintf("%+v", outputObj), nil
 	default:
 		return jsonMarshal(output)
+	}
+}
+
+func renderBlockGHOSTDAGData(ghostdagData *model.BlockGHOSTDAGData) (string, error) {
+	jsonable := jsonableBlockGHOSTDAGData(ghostdagData)
+	return jsonMarshal(jsonable)
+}
+
+func jsonableBlockGHOSTDAGData(ghostdagData *model.BlockGHOSTDAGData) interface{} {
+	return &struct {
+		BlueScore      uint64
+		BlueWork       *big.Int
+		SelectedParent string
+		MergeSetBlues  []string
+		MergeSetReds   []string
+	}{
+		BlueScore:      ghostdagData.BlueScore(),
+		BlueWork:       ghostdagData.BlueWork(),
+		SelectedParent: ghostdagData.SelectedParent().String(),
+		MergeSetBlues:  hashes.ToStrings(ghostdagData.MergeSetBlues()),
+		MergeSetReds:   hashes.ToStrings(ghostdagData.MergeSetReds()),
 	}
 }
 
