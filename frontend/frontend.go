@@ -1,6 +1,7 @@
 package frontend
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gernest/utron"
@@ -24,5 +25,6 @@ func (fe *Frontend) Start() error {
 
 	app.AddController(controllers.NewStores(fe.backend))
 
-	return http.ListenAndServe(":8090", app)
+	fmt.Printf("Listening on %s\n", app.Config.BaseURL)
+	return http.ListenAndServe(fmt.Sprintf(":%d", app.Config.Port), app)
 }
