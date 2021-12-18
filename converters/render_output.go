@@ -3,10 +3,7 @@ package converters
 import (
 	"encoding/json"
 	"fmt"
-	"math/big"
 	"reflect"
-
-	"github.com/kaspanet/kaspad/domain/consensus/model"
 
 	"github.com/kaspanet/kaspad/domain/consensus/utils/hashes"
 
@@ -34,8 +31,8 @@ func RenderOutput(output interface{}) (string, error) {
 		return renderBlockHeader(outputObj)
 	case *externalapi.DomainBlock:
 		return renderBlock(outputObj)
-	case *model.BlockGHOSTDAGData:
-		return renderBlockGHOSTDAGData(outputObj)
+	//case *model.BlockGHOSTDAGData:
+	//	return renderBlockGHOSTDAGData(outputObj)
 	case error:
 		return fmt.Sprintf("%+v", outputObj), nil
 	default:
@@ -43,9 +40,11 @@ func RenderOutput(output interface{}) (string, error) {
 	}
 }
 
+/*
 func renderBlockGHOSTDAGData(ghostdagData *model.BlockGHOSTDAGData) (string, error) {
 	jsonable := jsonableBlockGHOSTDAGData(ghostdagData)
 	return jsonMarshal(jsonable)
+
 }
 
 func jsonableBlockGHOSTDAGData(ghostdagData *model.BlockGHOSTDAGData) interface{} {
@@ -63,7 +62,7 @@ func jsonableBlockGHOSTDAGData(ghostdagData *model.BlockGHOSTDAGData) interface{
 		MergeSetReds:   hashes.ToStrings(ghostdagData.MergeSetReds()),
 	}
 }
-
+*/
 func renderBlock(block *externalapi.DomainBlock) (string, error) {
 	jsonable := jsonableBlock(block)
 
@@ -98,7 +97,7 @@ func jsonableBlockHeader(blockHeader externalapi.BlockHeader) interface{} {
 		Nonce                uint64
 	}{
 		Version:              blockHeader.Version(),
-		ParentHashes:         hashes.ToStrings(blockHeader.ParentHashes()),
+		ParentHashes:         hashes.ToStrings(blockHeader.DirectParents()), // blockHeader.ParentHashes()),
 		HashMerkleRoot:       blockHeader.HashMerkleRoot().String(),
 		AcceptedIDMerkleRoot: blockHeader.AcceptedIDMerkleRoot().String(),
 		UTXOCommitment:       blockHeader.UTXOCommitment().String(),

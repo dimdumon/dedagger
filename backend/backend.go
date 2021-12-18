@@ -32,8 +32,8 @@ func NewBackend(dataDir string, dagParams *dagconfig.Params) (backend *Backend, 
 func initConsensus(dataDir string, dagParams *dagconfig.Params) (tc testapi.TestConsensus, teardown func(), err error) {
 	factory := consensus.NewFactory()
 	factory.SetTestDataDir(dataDir)
-
-	tc, tcTeardown, err := factory.NewTestConsensus(dagParams, false, "dedagger")
+	config := consensus.Config{*dagParams, false, false, false}
+	tc, tcTeardown, err := factory.NewTestConsensus(&config, "dedagger")
 	if err != nil {
 		return nil, nil, err
 	}
